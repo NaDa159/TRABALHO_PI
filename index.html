@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Parada Inteligente — Erechim</title>
+
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<a href="#map" class="skip-link">Pular para o mapa</a>
+
+<div class="container-principal">
+
+    <!-- CABEÇALHO LIMPO E LEGÍVEL -->
+    <header class="cabecalho">
+        <div class="identidade">
+            <div class="identidade-logo" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>
+            </div>
+            <div class="identidade-texto">
+                <h1>Parada Inteligente</h1>
+                <p>Erechim · Terminal Urbano Central</p>
+            </div>
+        </div>
+
+        <div class="informacoes-topo">
+            <div class="pill-info informacao-clima" id="btn-clima-topo" title="Condições climáticas">
+                <span id="icone-clima" class="clima-emoji">⛅</span>
+                <div class="clima-dados">
+                    <div class="clima-linha-principal">
+                        <strong id="temperatura-atual">--°C</strong>
+                        <span id="detalhe-clima">Carregando...</span>
+                    </div>
+                    <small id="weather-details">Sensação --° · Umidade --%</small>
+                </div>
+            </div>
+
+            <div class="pill-info informacao-relogio">
+                <strong id="hora-atual">00:00</strong>
+                <span id="data-atual">Carregando...</span>
+            </div>
+
+            <button class="btn-icone-topo" id="btn-fullscreen" aria-label="Tela cheia" title="Tela Cheia (Modo Totem)">⛶</button>
+        </div>
+    </header>
+
+    <!-- ÁREA CENTRAL COM MAPA -->
+    <main class="conteudo-principal">
+        <div class="area-mapa">
+            <div id="map" aria-label="Mapa interativo de Erechim"></div>
+
+            <!-- CONTROLES SUPERIORES DO MAPA -->
+            <div class="topbar-mapa">
+                <div class="grupo-pilula">
+                    <button class="btn-pill active" id="view2d">2D</button>
+                    <button class="btn-pill" id="view3d">3D</button>
+                    <button class="btn-pill primary" id="locate">📍 Terminal</button>
+                </div>
+            </div>
+
+            <div class="controles-mapa-topo">
+                <button class="controle-mapa" id="btn-zoom-in" aria-label="Aumentar zoom">+</button>
+                <button class="controle-mapa" id="btn-zoom-out" aria-label="Diminuir zoom">−</button>
+            </div>
+
+            <!-- BOTÃO FLUTUANTE DE VOZ DE ACESSO FÁCIL -->
+            <div class="cta-voz-flutuante">
+                <button class="btn-voz-gigante" id="btn-voz-direta" aria-label="Tocar para falar com a Inteligência Artificial">
+                    <span class="pulso-mic">🎙️</span>
+                    <span class="texto-voz">
+                        <strong>Falar com a IA</strong>
+                        <small>Toque e pergunte sobre linhas, horários ou destinos</small>
+                    </span>
+                </button>
+            </div>
+
+            <div class="map-note">
+                © OpenStreetMap / OpenFreeMap · Referências urbanas de Erechim
+            </div>
+        </div>
+
+        <!-- PAINEL: ASSISTENTE IA -->
+        <section class="painel-funcionalidade" id="painel-assistente">
+            <div class="painel-cabecalho">
+                <div class="painel-titulo-grupo">
+                    <span class="painel-badge-icone">✨</span>
+                    <div>
+                        <h2>Assistente Inteligente</h2>
+                        <small>Pergunte por voz ou toque nas opções abaixo</small>
+                    </div>
+                </div>
+                <button class="fechar-painel" aria-label="Fechar painel">✕</button>
+            </div>
+
+            <div class="painel-conteudo assistente-conteudo">
+                <div class="chat-log" id="chat-log" aria-live="polite"></div>
+
+                <div class="sugestoes-wrapper">
+                    <p class="rotulo-secao">Toque para perguntar rápido:</p>
+                    <div class="sugestoes-ia">
+                        <button class="chip-sugestao" data-sugestao="Quais ônibus chegam agora?">⏱️ Próximos ônibus</button>
+                        <button class="chip-sugestao" data-sugestao="Como chegar à URI Câmpus I?">🎓 Ir para URI Câmpus I</button>
+                        <button class="chip-sugestao" data-sugestao="Como chegar à URI Câmpus II?">🎓 Ir para URI Câmpus II</button>
+                        <button class="chip-sugestao" data-sugestao="Quais linhas existem na cidade?">🚌 Todas as linhas</button>
+                        <button class="chip-sugestao" data-sugestao="Como funciona a integração?">🔄 Integração</button>
+                        <button class="chip-sugestao" data-sugestao="Vai chover hoje?">🌦️ Previsão do tempo</button>
+                    </div>
+                </div>
+
+                <div id="status-voz" class="status-voz" hidden>
+                    <span class="onda-voz"></span>
+                    <span>Ouvindo você... Pode falar agora!</span>
+                </div>
+
+                <div class="chat-controles-bar">
+                    <div class="chat-form">
+                        <input class="campo-texto" id="chat-input" placeholder="Ex.: Como vou para o Três Vendas?" autocomplete="off">
+                        <button class="btn-icon-form" id="btn-abrir-teclado" aria-label="Abrir teclado na tela" title="Teclado">⌨️</button>
+                        <button class="btn-icon-form btn-mic-form" id="chat-mic" aria-label="Falar pergunta" title="Falar">🎙️</button>
+                        <button class="btn-enviar-form" id="chat-enviar">Enviar</button>
+                    </div>
+                    <div class="chat-opcoes">
+                        <button class="btn-secundario-sm" id="chat-voz-resposta" aria-pressed="true">🔊 Resposta falada: ON</button>
+                        <button class="btn-secundario-sm" id="chat-limpar">🗑️ Limpar chat</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAINEL: CHEGADAS -->
+        <section class="painel-funcionalidade" id="painel-chegadas">
+            <div class="painel-cabecalho">
+                <div class="painel-titulo-grupo">
+                    <span class="painel-badge-icone">⏱️</span>
+                    <div>
+                        <h2>Próximas Chegadas</h2>
+                        <small>Previsão no Terminal Urbano Central</small>
+                    </div>
+                </div>
+                <button class="fechar-painel" aria-label="Fechar painel">✕</button>
+            </div>
+
+            <div class="painel-conteudo">
+                <div id="chegadas-simuladas"></div>
+                <p class="aviso-demo">Tempos e lotação estimados para demonstração do sistema.</p>
+            </div>
+        </section>
+
+        <!-- PAINEL: LINHAS -->
+        <section class="painel-funcionalidade" id="painel-linhas">
+            <div class="painel-cabecalho">
+                <div class="painel-titulo-grupo">
+                    <span class="painel-badge-icone">🚌</span>
+                    <div>
+                        <h2>Linhas e Itinerários</h2>
+                        <small>Toque em uma linha para destacar no mapa</small>
+                    </div>
+                </div>
+                <button class="fechar-painel" aria-label="Fechar painel">✕</button>
+            </div>
+
+            <div class="painel-conteudo">
+                <div class="input-row">
+                    <input class="campo-texto" id="busca-linha" placeholder="Buscar bairro ou linha (ex.: Fátima, URI)...">
+                    <button class="btn-icon-form" id="btn-teclado-busca" aria-label="Teclado na tela">⌨️</button>
+                </div>
+
+                <div id="rotas-lista"></div>
+
+                <div class="controles-onibus">
+                    <button class="botao botao-destaque" id="btn-iniciar-onibus">▶ Simular</button>
+                    <button class="botao" id="btn-pausar-onibus">⏸ Pausar</button>
+                    <button class="botao" id="btn-reiniciar-onibus">↻ Reiniciar</button>
+                </div>
+
+                <button class="botao botao-bloco" id="btn-qrcode-linha">📱 Levar rota no celular (QR Code)</button>
+                <p id="status-rota" class="rota-status">Selecione uma linha acima.</p>
+            </div>
+        </section>
+
+        <!-- PAINEL: HORÁRIOS -->
+        <section class="painel-funcionalidade" id="painel-horarios">
+            <div class="painel-cabecalho">
+                <div class="painel-titulo-grupo">
+                    <span class="painel-badge-icone">🕒</span>
+                    <div>
+                        <h2>Quadro de Horários</h2>
+                        <small>Saídas de referência — Terminal Urbano</small>
+                    </div>
+                </div>
+                <button class="fechar-painel" aria-label="Fechar painel">✕</button>
+            </div>
+
+            <div class="painel-conteudo">
+                <div class="tabela-responsiva">
+                    <table class="tabela-horarios">
+                        <thead>
+                            <tr>
+                                <th>Operação</th>
+                                <th>Linha / Destino</th>
+                                <th>Intervalo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="horarios-urbanos"></tbody>
+                    </table>
+                </div>
+
+                <div class="cartao-informativo">
+                    <strong>Finais de Semana e Feriados</strong>
+                    <span><b>Sábados:</b> 06:30 às 22:30 (intervalos de 40 a 60 min)</span>
+                    <span><b>Domingos:</b> 07:30 às 21:00 (linhas circulares)</span>
+                </div>
+
+                <button class="botao botao-bloco botao-destaque" id="btn-qrcode-horarios">📱 Escanear Horários no Celular</button>
+
+                <div class="cartao-informativo">
+                    <strong>Consulta Oficial — Transportes Gaurama</strong>
+                    <span>(54) 3321-3637 · WhatsApp: (54) 99144-7046</span>
+                    <a href="https://urbanoerechim.com.br/" target="_blank" rel="noopener">Acessar site oficial ↗</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAINEL: PLANEJADOR -->
+        <section class="painel-funcionalidade" id="painel-planejador">
+            <div class="painel-cabecalho">
+                <div class="painel-titulo-grupo">
+                    <span class="painel-badge-icone">🧭</span>
+                    <div>
+                        <h2>Como Chegar (Rotas)</h2>
+                        <small>Descubra qual ônibus pegar</small>
+                    </div>
+                </div>
+                <button class="fechar-painel" aria-label="Fechar painel">✕</button>
+            </div>
+
+            <div class="painel-conteudo">
+                <label for="origin">Onde você está?</label>
+                <select id="origin" class="campo-select"></select>
+
+                <button class="botao botao-bloco" id="swapRoute">⇅ Inverter origem e destino</button>
+
+                <label for="destination">Para onde você vai?</label>
+                <select id="destination" class="campo-select"></select>
+
+                <label for="departureTime">Horário desejado</label>
+                <input type="time" id="departureTime" class="campo-texto">
+
+                <button class="botao botao-bloco botao-destaque" id="drawRoute">Traçar melhor trajeto</button>
+                <button class="botao botao-bloco" id="clearRoute">Limpar mapa</button>
+
+                <div id="routeInfo" class="resultado-rota" hidden>
+                    <span class="resultado-titulo">Melhor opção encontrada</span>
+                    <strong id="routeLineBadge"></strong>
+                    <div id="routeSteps" class="etapas-onibus"></div>
+                    <p id="routeDistance"></p>
+                    <p id="routeDuration"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAINEL: ACESSIBILIDADE -->
+        <section class="painel-funcionalidade" id="painel-acessibilidade">
+            <div class="painel-cabecalho">
+                <div class="painel-titulo-grupo">
+                    <span class="painel-badge-icone">♿</span>
+                    <div>
+                        <h2>Acessibilidade</h2>
+                        <small>Adapte a tela e o áudio para seu conforto</small>
+                    </div>
+                </div>
+                <button class="fechar-painel" aria-label="Fechar painel">✕</button>
+            </div>
+
+            <div class="painel-conteudo">
+                <h3 class="subtitulo-painel">Tamanho das letras</h3>
+                <div class="grade-botoes-acessibilidade">
+                    <button class="btn-toggle-acessivel active" id="btn-fonte-normal">Aa Normal</button>
+                    <button class="btn-toggle-acessivel" id="btn-fonte-maior">Aa+ Ampliado</button>
+                </div>
+
+                <h3 class="subtitulo-painel">Contraste da tela</h3>
+                <div class="grade-botoes-acessibilidade">
+                    <button class="btn-toggle-acessivel active" id="btn-contraste-padrao">☀️ Claro</button>
+                    <button class="btn-toggle-acessivel" id="btn-contraste-alto">🌗 Alto Contraste</button>
+                </div>
+
+                <h3 class="subtitulo-painel">Guia por Voz</h3>
+                <button class="btn-toggle-acessivel" style="width:100%; margin-bottom:10px;" id="btn-leitor-interativo" aria-pressed="false">🗣️ Narrar botões ao tocar: DESLIGADO</button>
+                <button class="btn-acao-acessivel" id="btn-leitura-voz">🔊 Ouvir resumo desta parada</button>
+                <button class="btn-acao-acessivel perigo" id="btn-parar-voz">🔇 Silenciar áudio</button>
+
+                <h3 class="subtitulo-painel">Teclado na Tela</h3>
+                <button class="btn-acao-acessivel" id="btn-toggle-teclado-acess">⌨️ Abrir / Fechar Teclado Virtual</button>
+            </div>
+        </section>
+
+        <!-- PAINEL: AJUDA & INFO -->
+        <section class="painel-funcionalidade" id="painel-ajuda">
+            <div class="painel-cabecalho">
+                <div class="painel-titulo-grupo">
+                    <span class="painel-badge-icone">🆘</span>
+                    <div>
+                        <h2>Ajuda, SOS &amp; Status</h2>
+                        <small>Emergência, contatos e diagnóstico do totem</small>
+                    </div>
+                </div>
+                <button class="fechar-painel" aria-label="Fechar painel">✕</button>
+            </div>
+
+            <div class="painel-conteudo">
+                <h3 class="subtitulo-painel">Telefones de Emergência</h3>
+                <div class="grade-emergencia">
+                    <div class="contato-card contato-emergencia">
+                        <span class="contato-numero">192</span>
+                        <div><strong>SAMU</strong><small>Urgência médica</small></div>
+                    </div>
+                    <div class="contato-card contato-emergencia">
+                        <span class="contato-numero">190</span>
+                        <div><strong>Polícia</strong><small>Segurança</small></div>
+                    </div>
+                    <div class="contato-card contato-emergencia">
+                        <span class="contato-numero">193</span>
+                        <div><strong>Bombeiros</strong><small>Resgate</small></div>
+                    </div>
+                    <div class="contato-card contato-emergencia">
+                        <span class="contato-numero">199</span>
+                        <div><strong>Defesa Civil</strong><small>Ocorrências</small></div>
+                    </div>
+                </div>
+
+                <h3 class="subtitulo-painel">Transporte Coletivo Erechim</h3>
+                <div class="cartao-informativo">
+                    <strong>Empresa Gaurama</strong>
+                    <span>Tel: (54) 3321-3637 · WhatsApp: (54) 99144-7046</span>
+                    <span>Rua Jerônimo Teixeira, 348 — Centro</span>
+                </div>
+                <div class="cartao-informativo">
+                    <strong>AGER — Agência Reguladora</strong>
+                    <span>Tel: (54) 3321-6501 · WhatsApp: (54) 99149-3554</span>
+                </div>
+
+                <h3 class="subtitulo-painel">Status Técnico do Totem</h3>
+                <div class="telemetria-grid">
+                    <div class="telemetria-item"><span>Mapa</span><span class="status-tag" id="status-mapa">Carregando</span></div>
+                    <div class="telemetria-item"><span>Clima</span><span class="status-tag" id="status-clima">Aguardando</span></div>
+                    <div class="telemetria-item"><span>Voz</span><span class="status-tag" id="status-voz-totem">Verificando</span></div>
+                    <div class="telemetria-item"><span>Offline</span><span class="status-tag" id="status-pwa">Verificando</span></div>
+                </div>
+                <small class="texto-mutado" id="status-internet" style="display:block; margin-top:8px;">Verificando rede...</small>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- DOCK DE NAVEGAÇÃO INFERIOR (OTIMIZADO PARA TABLET) -->
+    <nav class="dock-navegacao" aria-label="Menu principal">
+        <button class="dock-btn destaque-ia" data-painel="assistente">
+            <span class="dock-icone">✨</span>
+            <span class="dock-label">Assistente</span>
+        </button>
+        <button class="dock-btn" data-painel="chegadas">
+            <span class="dock-icone">⏱️</span>
+            <span class="dock-label">Chegadas</span>
+        </button>
+        <button class="dock-btn" data-painel="linhas">
+            <span class="dock-icone">🚌</span>
+            <span class="dock-label">Linhas</span>
+        </button>
+        <button class="dock-btn" data-painel="planejador">
+            <span class="dock-icone">🧭</span>
+            <span class="dock-label">Rotas</span>
+        </button>
+        <button class="dock-btn" data-painel="horarios">
+            <span class="dock-icone">🕒</span>
+            <span class="dock-label">Horários</span>
+        </button>
+        <button class="dock-btn" data-painel="acessibilidade">
+            <span class="dock-icone">♿</span>
+            <span class="dock-label">Acessível</span>
+        </button>
+        <button class="dock-btn destaque-sos" data-painel="ajuda">
+            <span class="dock-icone">🆘</span>
+            <span class="dock-label">Ajuda</span>
+        </button>
+    </nav>
+
+</div>
+
+<!-- MODAL QR CODE -->
+<div class="modal-overlay" id="modal-qrcode" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="qr-titulo">
+        <div class="modal-cabecalho">
+            <h3 id="qr-titulo">Levar no Celular</h3>
+            <button class="fechar-painel" id="fechar-qrcode" aria-label="Fechar QR Code">✕</button>
+        </div>
+        <div class="modal-corpo">
+            <p id="qr-descricao">Aponte a câmera do seu celular para salvar:</p>
+            <div class="qr-container" id="qr-imagem-container"></div>
+            <div class="qr-resumo-texto" id="qr-texto-copia"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TECLADO VIRTUAL -->
+<div class="teclado-virtual" id="teclado-virtual" hidden>
+    <div class="teclado-topo">
+        <span id="teclado-campo-alvo">Teclado na Tela</span>
+        <button class="btn-secundario-sm" id="fechar-teclado">Fechar ✕</button>
+    </div>
+    <div class="teclado-linhas" id="teclado-teclas"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
